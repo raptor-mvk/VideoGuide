@@ -1,7 +1,7 @@
-(ns video-guide.core
-  (:gen-class))
+(ns video_guide.core
+  (:gen-class)
+  (:require [video_guide.db.main :refer :all]))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  (println ("create table film (name text)")))
