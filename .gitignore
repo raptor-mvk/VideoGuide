@@ -1,0 +1,13 @@
+out/*
+.idea/workspace.xml
+.idea/uiDesigner.xml
+torepo.bat
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
