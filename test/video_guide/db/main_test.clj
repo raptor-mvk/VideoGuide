@@ -1,6 +1,6 @@
 (ns
   ^{:author raptor_MVK}
-  video_guide.db.test
+  video_guide.db.main_test
   (:require [clojure.test :refer :all]
             [clojure.java.jdbc :refer :all]
             [video_guide.ext :refer :all]
@@ -27,8 +27,7 @@
       (is (= '((:book [:name :text] [:pages :int] [:author :int])
                 (:author [:name :text] [:surname :text]))
             (get-db-metadata test3-db-connection))
-        "Should process two-table database correctly")
-      true)
+        "Should process two-table database correctly"))
     (finally (clean-up-files "test1.db" "test2.db" "test3.db"))))
 
 (defn- get-db-connection
@@ -48,5 +47,5 @@
   [& filenames]
   (runmap delete-file filenames))
 
-(run-tests 'video_guide.db.test)
+(run-tests 'video_guide.db.main_test)
 
