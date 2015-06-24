@@ -2,7 +2,9 @@
   ^{:author raptor_MVK}
   video_guide.info)
 
-(declare check-order check-sql-names default-field-value)
+(declare check-order check-sql-names check-tables default-field-value)
+
+(defrecord CommonDomainInfo [entities-info])
 
 (defprotocol EntityInfo
   (sql-fields [_])
@@ -53,6 +55,15 @@
     (CommonEntityInfo. name fields-info)
     (throw (IllegalArgumentException.))))
 
+(defn make-domain-info
+  "Given entities-info list, returns CommonDomainInfo. If entities-info is
+  empty or check-tables(entities-info) returns false, then throws
+  IllegalArgumentException"
+  [entities-info]
+  (if (and (not-empty entities-info) (check-tables entities-info))
+    (CommonDomainInfo. entities-info)
+    (throw (IllegalArgumentException.))))
+
 (defn- check-order
   "Given fields-info list, checks that all fields (field? returns true) and
   columns (column? returns true) have different field-order and column-order
@@ -72,6 +83,12 @@
   (let [fields (filter #(or (.field? %) (.sql? %)) fields-info)
         sql-name-set (into #{} (map #(.sql-name %) fields))]
     (= (count fields) (count sql-name-set))))
+
+(defn- check-tables
+  "Given entity-info list, checks that all entities have different table names"
+  [entities-info]
+  (let [tables-set (into #{} (map #(.table %) entities-info))]
+    (= (count entities-info) (count tables-set))))
 
 (defn- default-field-value
   [field-info]

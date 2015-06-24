@@ -3,8 +3,8 @@
   video_guide.info_test
   (:require [clojure.test :refer :all]
             [video_guide.ext :refer :all]
-            [video_guide.info :refer [make-entity-info]])
-  (:import (video_guide.info FieldInfo CommonEntityInfo)))
+            [video_guide.info :refer [make-entity-info make-domain-info]])
+  (:import (video_guide.info FieldInfo CommonEntityInfo CommonDomainInfo)))
 
 (defrecord SQLFieldInfo [name]
   FieldInfo
@@ -164,5 +164,19 @@
 (deftest table-info-test
   (is (= "test" (.table (CommonEntityInfo. "test" [])))
     "Should return name of EntityInfo"))
+
+(deftest make-domain-info-test
+  (let [entity-info1 (CommonEntityInfo. "table1" [])
+        entity-info2 (CommonEntityInfo. "table2" [])]
+    (is (thrown? IllegalArgumentException
+          (make-domain-info []))
+      "Should throw IllegalArgumentException, when entities-info is empty")
+    (is (= (CommonDomainInfo. [entity-info1 entity-info2])
+          (make-domain-info [entity-info1 entity-info2]))
+      "Should create CommonDomainInfo, when entities-info is correct")
+    (is (thrown? IllegalArgumentException
+          (make-domain-info [entity-info1 entity-info1]))
+      "Should throw IllegalArgumentException, when entities-info contains
+      different EntityInfo with same table")))
 
 (run-tests 'video_guide.info_test)
