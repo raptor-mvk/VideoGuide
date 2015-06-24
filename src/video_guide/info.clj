@@ -4,7 +4,13 @@
 
 (declare check-order check-sql-names check-tables default-field-value)
 
-(defrecord CommonDomainInfo [entities-info])
+(defprotocol DomainInfo
+  (sql-db-info [_]))
+
+(defrecord CommonDomainInfo [entities-info]
+  DomainInfo
+  (sql-db-info [_]
+    (map #(.sql-table-info %) entities-info)))
 
 (defprotocol EntityInfo
   (sql-fields [_])
