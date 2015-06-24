@@ -11,7 +11,8 @@
   (form-fields [_])
   (columns [_])
   (table [_])
-  (default-entity [this]))
+  (default-entity [this])
+  (sql-table-info [_]))
 
 (defrecord CommonEntityInfo [name fields-info]
   EntityInfo
@@ -28,7 +29,9 @@
     (let [field-values (map default-field-value (form-fields this))]
       (if (not-empty field-values)
         (reduce into field-values)
-        nil))))
+        nil)))
+  (sql-table-info [this]
+    (conj (.sql-fields this) name)))
 
 (defprotocol FieldInfo
   (field [_])

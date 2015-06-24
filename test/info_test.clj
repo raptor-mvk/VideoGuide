@@ -13,7 +13,7 @@
   (getter [_] true)
   (default [_] 0)
   (column [_] name)
-  (sql-field [_] (list name :sql))
+  (sql-field [_] [name :sql])
   (sql-name [_] name)
   (field-order [_] 0)
   (column-order [_] 0)
@@ -28,7 +28,7 @@
   (getter [_] true)
   (default [_] 0)
   (column [_] name)
-  (sql-field [_] (list name :sql))
+  (sql-field [_] [name :form])
   (sql-name [_] name)
   (field-order [_] field-order)
   (column-order [_] 0)
@@ -43,7 +43,7 @@
   (getter [_] true)
   (default [_] 0)
   (column [_] name)
-  (sql-field [_] (list name :sql))
+  (sql-field [_] [name :column])
   (sql-name [_] name)
   (field-order [_] 0)
   (column-order [_] column-order)
@@ -62,9 +62,9 @@
 (def column-field3 (ColumnFieldInfo. :width 3))
 
 (deftest entity-info-sql-fields-test
-  (let [entity-test1 (CommonEntityInfo. "test1" [])
-        entity-test2 (CommonEntityInfo. "test2" [form-field1 column-field1])
-        entity-test3 (CommonEntityInfo. "test3"
+  (let [entity-test1 (CommonEntityInfo. :test1 [])
+        entity-test2 (CommonEntityInfo. :test2 [form-field1 column-field1])
+        entity-test3 (CommonEntityInfo. :test3
                        [sql-field1 form-field1 sql-field2 column-field1
                         sql-field3])
         test3-answer (map #(.sql-field %) [sql-field1 sql-field2 sql-field3])]
@@ -76,12 +76,12 @@
       "Should return vector of sql-typed FieldInfo from EntityInfo")))
 
 (deftest entity-info-form-fields-test
-  (let [entity-test1 (CommonEntityInfo. "test1" [])
-        entity-test2 (CommonEntityInfo. "test2" [sql-field1 column-field1])
-        entity-test3 (CommonEntityInfo. "test3"
+  (let [entity-test1 (CommonEntityInfo. :test1 [])
+        entity-test2 (CommonEntityInfo. :test2 [sql-field1 column-field1])
+        entity-test3 (CommonEntityInfo. :test3
                        [form-field1 sql-field1 form-field2 column-field1
                         form-field3])
-        entity-test4 (CommonEntityInfo. "test4"
+        entity-test4 (CommonEntityInfo. :test4
                        [form-field3 sql-field1 form-field1 column-field1
                         form-field2])
         test-answer [form-field1 form-field2 form-field3]]
@@ -98,12 +98,12 @@
       from EntityInfo")))
 
 (deftest entity-info-column-fields-test
-  (let [entity-test1 (CommonEntityInfo. "test1" [])
-        entity-test2 (CommonEntityInfo. "test2" [sql-field1 form-field1])
-        entity-test3 (CommonEntityInfo. "test3"
+  (let [entity-test1 (CommonEntityInfo. :test1 [])
+        entity-test2 (CommonEntityInfo. :test2 [sql-field1 form-field1])
+        entity-test3 (CommonEntityInfo. :test3
                        [form-field1 sql-field1 column-field1 column-field2
                         column-field3])
-        entity-test4 (CommonEntityInfo. "test4"
+        entity-test4 (CommonEntityInfo. :test4
                        [column-field3 form-field1 column-field1 sql-field3
                         form-field2 column-field2])
         test-answer [column-field1 column-field2 column-field3]]
@@ -118,6 +118,39 @@
     (is (= test-answer (.columns entity-test4))
       "Should return sorted by column-order vector of column-typed FieldInfo
       from EntityInfo")))
+
+(deftest entity-info-table-test
+  (is (= :test (.table (CommonEntityInfo. :test [])))
+    "Should return name of EntityInfo"))
+
+(deftest entity-info-default-entity-test
+  (let [entity-test1 (CommonEntityInfo. :test1 [])
+        entity-test2 (CommonEntityInfo. :test2 [sql-field1 column-field1])
+        entity-test3 (CommonEntityInfo. :test3
+                       [form-field1 sql-field1 form-field2 column-field1
+                        form-field3])
+        test3-answer {:name 0 :duration 0 :width 0}]
+    (is (nil? (.default-entity entity-test1))
+      "Should return nil for empty EntityInfo")
+    (is (nil? (.default-entity entity-test2))
+      "Should return nil for EntityInfo without form-field-typed
+      FieldInfo")
+    (is (= test3-answer (.default-entity entity-test3))
+      "Should return map with form-field-typed FieldInfo keys from
+      EntityInfo and default values")))
+
+(deftest entity-info-sql-table-info-test
+  (let [entity-test1 (CommonEntityInfo. :test1 [])
+        entity-test2 (CommonEntityInfo. :test2 [sql-field1 sql-field2])
+        entity-test3 (CommonEntityInfo. :test3 [sql-field3 form-field1
+                                                 column-field3 sql-field1])]
+    (is (= '(:test1) (.sql-table-info entity-test1))
+      "Should return table name only for empty field-info")
+    (is (= '(:test2 [:name :sql] [:duration :sql])
+          (.sql-table-info entity-test2))
+      "Should process sql-typed FieldInfo only fields-info correctly")
+    (is (= '(:test3 [:width :sql] [:name :sql]) (.sql-table-info entity-test3))
+      "Should process mixed fields-info correctly")))
 
 (deftest make-entity-info-test
   (let [fields-info1 [sql-field1 form-field2 column-field3]
@@ -145,29 +178,9 @@
       "Should throw IllegalArgumentException, when fields-info contains
       different column-typed FieldInfo with same column-order")))
 
-(deftest default-entity-info-test
-  (let [entity-test1 (CommonEntityInfo. "test1" [])
-        entity-test2 (CommonEntityInfo. "test2" [sql-field1 column-field1])
-        entity-test3 (CommonEntityInfo. "test3"
-                       [form-field1 sql-field1 form-field2 column-field1
-                        form-field3])
-        test3-answer {:name 0 :duration 0 :width 0}]
-    (is (nil? (.default-entity entity-test1))
-      "Should return nil for empty EntityInfo")
-    (is (nil? (.default-entity entity-test2))
-      "Should return nil for EntityInfo without form-field-typed
-      FieldInfo")
-    (is (= test3-answer (.default-entity entity-test3))
-      "Should return map with form-field-typed FieldInfo keys from
-      EntityInfo and default values")))
-
-(deftest table-info-test
-  (is (= "test" (.table (CommonEntityInfo. "test" [])))
-    "Should return name of EntityInfo"))
-
 (deftest make-domain-info-test
-  (let [entity-info1 (CommonEntityInfo. "table1" [])
-        entity-info2 (CommonEntityInfo. "table2" [])]
+  (let [entity-info1 (CommonEntityInfo. :table1 [])
+        entity-info2 (CommonEntityInfo. :table2 [])]
     (is (thrown? IllegalArgumentException
           (make-domain-info []))
       "Should throw IllegalArgumentException, when entities-info is empty")
