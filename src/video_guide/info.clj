@@ -2,7 +2,7 @@
   ^{:author raptor_MVK}
   video_guide.info)
 
-(declare check-fields-info default-field-value)
+(declare check-order check-sql-names default-field-value)
 
 (defprotocol EntityInfo
   (sql-fields [_])
@@ -44,14 +44,16 @@
 
 (defn make-entity-info
   "Given name and fields-info list, returns CommonEntityInfo. If fields-info
-  is empty or check-fields-info(fields-info) returns false, then throws
-  IllegalArgumentException"
+  is empty or check-order(fields-info) or check-sql-names(fields-info) returns
+  false, then throws IllegalArgumentException"
   [name fields-info]
-  (if (and (not-empty fields-info) (check-fields-info fields-info))
+  (if (and (not-empty fields-info)
+        (check-order fields-info)
+        (check-sql-names fields-info))
     (CommonEntityInfo. name fields-info)
     (throw (IllegalArgumentException.))))
 
-(defn- check-fields-info
+(defn- check-order
   "Given fields-info list, checks that all fields (field? returns true) and
   columns (column? returns true) have different field-order and column-order
   respectively"
@@ -62,6 +64,14 @@
         column-order-set (into #{} (map #(.column-order %) columns))]
     (and (= (count fields) (count field-order-set))
       (= (count columns) (count column-order-set)))))
+
+(defn- check-sql-names
+  "Given fields-info list, checks that all fields and sql-fields (field? or
+  sql? returns true) have different sql-name"
+  [fields-info]
+  (let [fields (filter #(or (.field? %) (.sql? %)) fields-info)
+        sql-name-set (into #{} (map #(.sql-name %) fields))]
+    (= (count fields) (count sql-name-set))))
 
 (defn- default-field-value
   [field-info]

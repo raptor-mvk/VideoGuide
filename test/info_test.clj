@@ -120,9 +120,8 @@
       from EntityInfo")))
 
 (deftest make-entity-info-test
-  (let [fields-info1 [sql-field1 form-field1 column-field1]
-        fields-info2 [sql-field1 sql-field1 form-field3 column-field3
-                      form-field1 column-field2]
+  (let [fields-info1 [sql-field1 form-field2 column-field3]
+        fields-info2 [sql-field1 form-field1]
         fields-info3 [form-field1 column-field3 form-field1 sql-field3
                       form-field2]
         fields-info4 [column-field3 form-field2 sql-field3 column-field1
@@ -134,11 +133,15 @@
           (make-entity-info "test2" fields-info1))
       "Should create CommonEntityInfo, when fields-info is correct")
     (is (thrown? IllegalArgumentException
-          (make-entity-info "test3" [fields-info3]))
+          (make-entity-info "test3" fields-info2))
+      "Should throw IllegalArgumentException, when fields-info contains
+      different form-field-typed of sql-typed FieldInfo with same sql-name")
+    (is (thrown? IllegalArgumentException
+          (make-entity-info "test4" [fields-info3]))
       "Should throw IllegalArgumentException, when fields-info contains
       different form-field-typed FieldInfo with same field-order")
     (is (thrown? IllegalArgumentException
-          (make-entity-info "test4" [fields-info4]))
+          (make-entity-info "test5" [fields-info4]))
       "Should throw IllegalArgumentException, when fields-info contains
       different column-typed FieldInfo with same column-order")))
 
