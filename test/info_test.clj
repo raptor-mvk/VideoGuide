@@ -64,7 +64,8 @@
 (deftest entity-info-sql-fields-test
   (let [entity-test1 (CommonEntityInfo. :test1 [])
         entity-test2 (CommonEntityInfo. :test2 [form-field1 column-field1])
-        entity-test3 (CommonEntityInfo. :test3 [sql-field1 form-field1 sql-field2 column-field1
+        entity-test3 (CommonEntityInfo. :test3 [sql-field1 form-field1
+                                                sql-field2 column-field1
                                                 sql-field3])
         test3-answer (map #(.sql-field %) [sql-field1 sql-field2 sql-field3])]
     (is (= [] (.sql-fields entity-test1))
@@ -77,9 +78,11 @@
 (deftest entity-info-form-fields-test
   (let [entity-test1 (CommonEntityInfo. :test1 [])
         entity-test2 (CommonEntityInfo. :test2 [sql-field1 column-field1])
-        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1 form-field2 column-field1
+        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1
+                                                form-field2 column-field1
                                                 form-field3])
-        entity-test4 (CommonEntityInfo. :test4 [form-field3 sql-field1 form-field1 column-field1
+        entity-test4 (CommonEntityInfo. :test4 [form-field3 sql-field1
+                                                form-field1 column-field1
                                                 form-field2])
         test-answer [form-field1 form-field2 form-field3]]
     (is (= [] (.form-fields entity-test1))
@@ -97,9 +100,11 @@
 (deftest entity-info-column-fields-test
   (let [entity-test1 (CommonEntityInfo. :test1 [])
         entity-test2 (CommonEntityInfo. :test2 [sql-field1 form-field1])
-        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1 column-field1 column-field2
+        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1
+                                                column-field1 column-field2
                                                 column-field3])
-        entity-test4 (CommonEntityInfo. :test4 [column-field3 form-field1 column-field1 sql-field3
+        entity-test4 (CommonEntityInfo. :test4 [column-field3 form-field1
+                                                column-field1 sql-field3
                                                 form-field2 column-field2])
         test-answer [column-field1 column-field2 column-field3]]
     (is (= [] (.columns entity-test1))
@@ -121,7 +126,8 @@
 (deftest entity-info-default-entity-test
   (let [entity-test1 (CommonEntityInfo. :test1 [])
         entity-test2 (CommonEntityInfo. :test2 [sql-field1 column-field1])
-        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1 form-field2 column-field1
+        entity-test3 (CommonEntityInfo. :test3 [form-field1 sql-field1
+                                                form-field2 column-field1
                                                 form-field3])
         test3-answer {:name 0 :duration 0 :width 0}]
     (is (nil? (.default-entity entity-test1))
